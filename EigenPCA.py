@@ -1,17 +1,6 @@
 import numpy        as     np
 from   scipy.sparse import spmatrix
 
-def SparseCov(A):
-   m  = A.shape[0]
-   As = A.sum(0, keepdims=True) if isinstance(A, np.ndarray) else A.sum(0)
-   return A.T @ A - As.T @ (As * (1 / m))
-
-def SparseCovT(A):
-   Am  = A.mean(0, keepdims=True) if isinstance(A, np.ndarray) else A.mean(0)
-   AAm = A @ Am.T
-   Am2 = Am @ Am.T
-   return A @ A.T - AAm - AAm.T + Am2
-
 class EigenPCA:
    
    def __init__(self, n_components=-1, scale=True, T=None):
