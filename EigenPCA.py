@@ -42,7 +42,7 @@ class EigenPCA:
          C = Xw.T @ Xw - Xm.T @ Xm
       else:                          # Use X(X^T)
          XXm = X @ Xm.T
-         C   = X @ X.T - XXm - XXm.T + Xm @ Xm.T
+         C   = X @ X.T + (Xm @ Xm.T - XXm) - XXm.T 
          C   = Wr * C * Wr.T
       
       S, Q = np.linalg.eigh(C)
