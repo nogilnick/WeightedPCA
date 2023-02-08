@@ -1,5 +1,6 @@
 import numpy        as     np
-from   scipy.sparse import spmatrix
+from   scipy.sparse import spmatrix, linalg
+from   scipy.linalg import eigh
 
 class EigenPCA:
 
@@ -9,10 +10,11 @@ class EigenPCA:
    def __repr__(self):
       return self.__str__()
 
-   def __init__(self, n_components=-1, scale=True, T=None):
+   def __init__(self, n_components=-1, scale=False, T=None, fast=False):
       self.scale = scale
       self.nc    = n_components
       self.T     = T
+      self.fast  = fast
 
    def fit(self, X, sample_weight=None):
       m, n = X.shape
@@ -47,12 +49,16 @@ class EigenPCA:
          C   = X @ X.T + (Xm @ Xm.T - XXm) - XXm.T
          C   = np.multiply(np.multiply(Wr, C), Wr.T)
 
-      S, Q = np.linalg.eigh(C)
+      if self.fast:
+         S, Q = linalg.eigsh(C, k=self.nc_)
+      else:
+         dim  = C.shape[0]
+         S, Q = eigh(C, subset_by_index=(dim - self.nc_, dim - 1))
       S = S[::-1]                    # eigh sorts in ascending order
       Q = Q[:, ::-1]
 
       self.exp_var_ = S
-      self.tot_var_ = np.sum(self.exp_var_ )
+      self.tot_var_ = np.trace(C)    # Sum of eigenvalues is trace
       self.exp_rat_ = self.exp_var_  / self.tot_var_
 
       # nc_ can also be x in [0, 1] and is taken to mean: take the largest
